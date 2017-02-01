@@ -5,9 +5,8 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <UserSecretsId>aspnet-FidoWeb-1e7acb77-4a4d-4630-968a-b93bf7969600</UserSecretsId>
     <Description>Walk you dog all over town</Description>
-    <DocumentationFile>.\Fido.Web.xml</DocumentationFile>
-    <OutputPath>
-    </OutputPath>
+    <DocumentationFile>.\FidoWeb.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="wwwroot\styles\sitecss.css" />
@@ -30,5 +29,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Api\WalksController.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="FidoWeb.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

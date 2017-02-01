@@ -50,9 +50,7 @@ namespace Fido.Web
                 c.SwaggerDoc("v1", new Info { Title = "WalkFido API", Version = "v1" });
 
                 //Set the comments path for the swagger json and ui.
-                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                var xmlPath = Path.Combine(basePath, "Fido.Web.xml");
-                c.IncludeXmlComments(xmlPath);
+                c.IncludeXmlComments(GetXmlCommentsPath(PlatformServices.Default.Application));
                 c.DescribeAllEnumsAsStrings();
             });
         }
@@ -85,8 +83,13 @@ namespace Fido.Web
 
             app.Run( async (context) =>
             {
-               await context.Response.WriteAsync("Hello world! The route you were looking for wars not hanlded by anybody else");
+               await context.Response.WriteAsync("Hello world! The route you were looking for was not handled by anybody else");
             });
+        }
+
+        private string GetXmlCommentsPath(ApplicationEnvironment appEnvironment)
+        {
+            return Path.Combine(appEnvironment.ApplicationBasePath, "FidoWeb.xml");
         }
     }
 }
