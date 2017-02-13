@@ -1,4 +1,5 @@
 ﻿using System;
+using Fido.Web.Data;
 using Fido.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,10 @@ namespace Fido.Web.Api
     /// </summary>
     public class AttachmentsController: BaseApiController
     {
+        public AttachmentsController(ApplicationDataContext dataContext) : base(dataContext)
+        {
+        }
+
         /// <summary>
         /// Get Attachment contents
         /// </summary>

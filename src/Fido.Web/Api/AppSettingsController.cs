@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 using Fido.Web.Configuration;
@@ -11,7 +6,7 @@ using Fido.Web.Configuration;
 namespace Fido.Web.Api
 {
     [Route("/api/settings")]
-    public class AppSettingsController: BaseApiController
+    public class AppSettingsController: Controller
     {
         private readonly AppSettings _appSettings;
 

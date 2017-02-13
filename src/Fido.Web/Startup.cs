@@ -6,10 +6,13 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
-using Fido.Web.Configuration;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.Extensions.PlatformAbstractions;
 using System.IO;
+
+using Fido.Web.Configuration;
+using Fido.Web.Data;
 
 namespace Fido.Web
 {
@@ -23,7 +26,7 @@ namespace Fido.Web
                     .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                    .AddUserSecrets()
+                    .AddUserSecrets<Startup>()
                     .AddEnvironmentVariables();
 
             Configuration = builder.Build();
@@ -38,6 +41,9 @@ namespace Fido.Web
                 });
 
             services.Configure<AppSettings>( Configuration.GetSection("appSettings"));
+
+            var connection = Configuration.GetConnectionString("fido.data");
+            services.AddDbContext<ApplicationDataContext>(options => options.UseSqlServer(connection));
         }
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
@@ -83,7 +89,7 @@ namespace Fido.Web
 
             app.Run( async (context) =>
             {
-               await context.Response.WriteAsync("Hello world! The route you were looking for was not handled by anybody else");
+               await context.Response.WriteAsync("Hello! The route you were looking for was not handled by anybody else");
             });
         }
 

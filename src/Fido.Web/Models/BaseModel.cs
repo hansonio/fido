@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Fido.Web.Models
 {
     public abstract class BaseModel
     {
+        [Key]
         public Guid Id { get; set; }
-
+        
         public DateTime Timestamp { get; set; }
     }
 }

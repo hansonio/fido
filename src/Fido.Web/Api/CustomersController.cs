@@ -1,8 +1,12 @@
-﻿using Fido.Web.Models;
+﻿using Fido.Web.Data;
+using Fido.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Fido.Web.Api
 {
@@ -11,6 +15,10 @@ namespace Fido.Web.Api
     /// </summary>
     public class CustomersController: BaseApiController
     {
+        public CustomersController(ApplicationDataContext dataContext) : base(dataContext)
+        {
+        }
+
         /// <summary>
         /// Retrieve a single customer
         /// </summary>
@@ -19,9 +27,14 @@ namespace Fido.Web.Api
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(Customer), 200)]
         [ProducesResponseType(404)]
-        public IActionResult Get(Guid id)
+        public async Task<IActionResult> GetCustomer(Guid id)
         {
-            var customer = new Customer() { Id = id, Name = "Bob Smith" };
+            var customer = await DataContext.Customers.SingleOrDefaultAsync(x => x.Id == id);
+
+            if(customer == null)
+            {
+                return NotFound();
+            }
 
             return Ok(customer);
         }
@@ -32,13 +45,9 @@ namespace Fido.Web.Api
         /// <returns>List of customers</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<Customer>), 200)]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var customers = new List<Customer>()
-            {
-                new Customer(){Id = Guid.NewGuid(), Name = "Bob Smith"},
-                new Customer(){Id = Guid.NewGuid(), Name = "John Jones"}
-            };
+            var customers = await DataContext.Customers.ToAsyncEnumerable().ToList();
 
             return Ok(customers);
         }
@@ -53,10 +62,17 @@ namespace Fido.Web.Api
         [HttpPost]
         [ProducesResponseType(typeof(Customer), 201)]
         [ProducesResponseType(403)]
-        public IActionResult Post([FromBody, Required]Customer model)
+        public async Task<IActionResult> Post([FromBody, Required]Customer model)
         {
-            model.Id = Guid.NewGuid();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             model.Timestamp = DateTime.UtcNow;
+
+            DataContext.Customers.Add(model);
+            await DataContext.SaveChangesAsync();
 
             return Created($"/api/customers/{model.Id}", model);
         }
@@ -69,15 +85,51 @@ namespace Fido.Web.Api
         /// <returns>The updated customer</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
-        public IActionResult Put(Guid Id, [FromBody, Required]Customer model)
+        public async Task<IActionResult> Put([FromRoute]Guid id, [FromBody, Required]Customer model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var customer = await DataContext.Customers.SingleOrDefaultAsync(x => x.Id == id);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.Name = model.Name;
+            customer.Email = model.Email;
+            customer.Phone = model.Phone;
+            customer.Address = model.Address;
+            customer.City = model.City;
+            customer.State = model.State;
+            customer.Zip = model.Zip;
+            customer.Name = model.Notes;
+            customer.NotifyAdHoc = model.NotifyAdHoc;
+
+            customer.Timestamp = DateTime.UtcNow;
+
+            DataContext.Customers.Update(customer);
+            await DataContext.SaveChangesAsync();
+
             return Ok(model);
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Customer), 200)]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete([FromRoute]Guid id)
         {
+            var customer = await DataContext.Customers.SingleOrDefaultAsync(x => x.Id == id);
+            if(customer == null)
+            {
+                return NotFound();
+            }
+
+            DataContext.Customers.Remove(customer);
+            await DataContext.SaveChangesAsync();
+
             return Ok();
         }
     }

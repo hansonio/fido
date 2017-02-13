@@ -1,10 +1,9 @@
 ﻿using Fido.Web.Configuration;
+using Fido.Web.Data;
+using Fido.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Fido.Web.Controllers
 {
@@ -13,14 +12,18 @@ namespace Fido.Web.Controllers
     public class HomeController: Controller
     {
         private AppSettings _appSettings;
+        private ApplicationDataContext _dataContext;
 
-        public HomeController(IOptions<AppSettings> appSettingsAccessor)
+        public HomeController(IOptions<AppSettings> appSettingsAccessor, ApplicationDataContext dataContext)
         {
             _appSettings = appSettingsAccessor.Value;
+            _dataContext = dataContext;
         }
 
         public IActionResult Index()
         {
+            var pets = _dataContext.Pets.ToList<Pet>();
+
             ViewBag.Title = _appSettings.Title;
             return View();
         }

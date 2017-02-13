@@ -42,7 +42,7 @@
             Manage Customers
             </summary>
         </member>
-        <member name="M:Fido.Web.Api.CustomersController.Get(System.Guid)">
+        <member name="M:Fido.Web.Api.CustomersController.GetCustomer(System.Guid)">
             <summary>
             Retrieve a single customer
             </summary>
@@ -71,6 +71,26 @@
             <param name="Id">Customer Id</param>
             <param name="model">New values for customer object</param>
             <returns>The updated customer</returns>
+        </member>
+        <member name="T:Fido.Web.Models.Attachment">
+            <summary>
+            Represents and picture of a dog on one of our walks
+            </summary>
+        </member>
+        <member name="P:Fido.Web.Models.Attachment.EntityId">
+            <summary>
+            A general id that let's us associate attachments to customers, pets or walks
+            </summary>
+        </member>
+        <member name="T:Fido.Web.Models.Customer">
+            <summary>
+            Domain class representing a single customer
+            </summary>
+        </member>
+        <member name="T:Fido.Web.Models.Payment">
+            <summary>
+            A payment from one of our customers
+            </summary>
         </member>
     </members>
 </doc>
