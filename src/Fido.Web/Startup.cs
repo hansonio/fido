@@ -1,18 +1,22 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Fido.Web.Configuration;
+using Fido.Web.Data;
+using Fido.Web.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.Extensions.PlatformAbstractions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
+using System;
 using System.IO;
-
-using Fido.Web.Configuration;
-using Fido.Web.Data;
+using System.Threading.Tasks;
 
 namespace Fido.Web
 {
@@ -44,6 +48,42 @@ namespace Fido.Web
 
             var connection = Configuration.GetConnectionString("fido.data");
             services.AddDbContext<ApplicationDataContext>(options => options.UseSqlServer(connection));
+
+            services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+                    {
+                        options.Cookies.ApplicationCookie.AccessDeniedPath = "/accessdenied";
+                        options.Cookies.ApplicationCookie.LoginPath = "/login";
+                        options.Cookies.ApplicationCookie.LogoutPath = "/logApplicationCookie";
+
+                        options.Cookies.ApplicationCookie.Events = new CookieAuthenticationEvents() {
+                            OnRedirectToAccessDenied = context => {
+                                if (context.Request.Path.StartsWithSegments("/api"))
+                                {
+                                    context.Response.StatusCode = 403;
+                                    return Task.FromResult(0);
+                                }
+
+                                context.Response.Redirect(context.RedirectUri);
+                                return Task.FromResult(0);
+
+                            },
+                            OnRedirectToLogin = context =>
+                            {
+                                if (context.Request.Path.StartsWithSegments("/api"))
+                                {
+                                    context.Response.StatusCode = 401;
+                                    return Task.FromResult(0);
+                                }
+
+                                context.Response.Redirect(context.RedirectUri);
+                                return Task.FromResult(0);
+                            }
+                        };
+                    })
+                    .AddEntityFrameworkStores<ApplicationDataContext, Guid>()
+                    .AddDefaultTokenProviders();
+
+            services.AddTransient<SeedData>();
         }
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
@@ -69,8 +109,10 @@ namespace Fido.Web
             {
                 app.UseDeveloperExceptionPage();
             }
-
+                
             app.UseStaticFiles();
+
+            app.UseIdentity();
 
             app.UseMvc();
 
@@ -89,8 +131,10 @@ namespace Fido.Web
 
             app.Run( async (context) =>
             {
-               await context.Response.WriteAsync("Hello! The route you were looking for was not handled by anybody else");
+                await context.Response.WriteAsync("Hello! The route you were looking for was not handled by anybody else");
             });
+
+            SeedData.Run(app.ApplicationServices).Wait();
         }
 
         private string GetXmlCommentsPath(ApplicationEnvironment appEnvironment)
