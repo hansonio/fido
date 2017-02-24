@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Fido.Web.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class AccountController: Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
