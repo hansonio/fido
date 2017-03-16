@@ -44,6 +44,7 @@ namespace Fido.Web.Controllers
         }
 
         [HttpGet("/logout")]
+        [HttpPost("/logout")]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();

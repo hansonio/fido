@@ -10,6 +10,7 @@
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="wwwroot\styles\login.css" />
     <Content Include="wwwroot\styles\sitecss.css" />
   </ItemGroup>
   <ItemGroup>
